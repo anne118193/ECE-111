@@ -1,0 +1,75 @@
+// Barrel Shifter RTL Model
+`include "mux_2x1_behavioral.sv"
+module barrel_shifter (
+  input logic select,  // select=0 shift operation, select=1 rotate operation
+  input logic direction, // direction=0 right move, direction=1 left move
+  input logic[1:0] shift_value, // number of bits to be shifted (0, 1, 2 or 3)
+  input logic[3:0] din,
+  output logic[3:0] dout
+);
+
+wire w0, w1, w2, w3;
+
+// Students to add code for barrel shifter
+always_comb @(posedge clk) begin
+	if(select) begin
+		if(direction) begin
+			case(shift_value)
+				2'b01: begin
+					din[0] <= din[3];
+					din[1] <= din[2];
+					din[2] <= din[1];
+					din[0] <= din[3];
+					
+					mux_2x1_behavioral(din[3], din[1], shift_value[1], w0);
+					mux_2x1_behavioral(din[2], din[0], shift_value[1], w1);
+					mux_2x1_behavioral(din[1], din[3], shift_value[1], w2);
+					mux_2x1_behavioral(din[0], din[2], shift_value[1], w3);
+					
+					mux_2x1_behavioral(w0, w1, shift_value[0], dout[3]);
+					mux_2x1_behavioral(w1, w2, shift_value[0], dout[2]);
+					mux_2x1_behavioral(w2, w3, shift_value[0], dout[1]);
+					mux_2x1_behavioral(w3, w0, shift_value[0], dout[0]);
+					
+					dout[0] <= dout[3];
+					dout[1] <= dout[2];
+					dout[2] <= dout[1];
+					dout[3] <= dout[0];
+				end
+				2'b10: dout <= din;
+				2'b11: dout <= din;
+				default:  dout <= din;//make this do nothing
+			endcase
+		end
+		else begin
+			case(shift_value)
+				2'b01: dout <= din;
+				2'b10: dout <= din;
+				2'b11: dout <= din;
+				default: dout <= din;//make this do nothing
+			endcase
+		end
+	end	
+	else begin
+		if(direction) begin
+			case(shift_value)
+				2'b01: dout <= din;
+				2'b10: dout <= din;
+				2'b11: dout <= din;
+				default:  dout <= din;//make this do nothing
+			endcase
+		end
+		else begin
+			case(shift_value)
+				2'b01: dout <= din;
+				2'b10: dout <= din;
+				2'b11: dout <= din;
+				default: dout <= din;//make this do nothing
+			endcase
+		end
+	end
+end
+
+endmodule: barrel_shifter
+
+
